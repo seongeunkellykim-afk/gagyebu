@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150">
+  <defs>
+    <linearGradient id="h" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b23a2c"/>
+      <stop offset=".45" stop-color="#4a1616"/>
+      <stop offset="1" stop-color="#3a1212"/>
+    </linearGradient>
+    <pattern id="c" width="12" height="12" patternUnits="userSpaceOnUse">
+      <rect width="12" height="12" fill="#1b1b1b"/>
+      <rect width="6" height="6" fill="#1f8a5b"/>
+      <rect x="6" y="6" width="6" height="6" fill="#1f8a5b"/>
+    </pattern>
+  </defs>
+  <path d="M25 66C20 24 100 24 95 66L96 84L24 84Z" fill="#3a1212"/>
+  <path d="M14 150C16 122 36 110 60 110C84 110 104 122 106 150Z" fill="url(#c)"/>
+  <path d="M44 111L60 134L76 111C70 110 50 110 44 111Z" fill="#20212b"/>
+  <path d="M52 94h16v18H52z" fill="#f3c9b6"/>
+  <ellipse cx="29" cy="68" rx="4" ry="6" fill="#fde2d2"/>
+  <ellipse cx="91" cy="68" rx="4" ry="6" fill="#fde2d2"/>
+  <rect x="23" y="74" width="6" height="12" rx="1" fill="#fff" stroke="#c0392b"/>
+  <circle cx="26" cy="79" r="2" fill="#d9372b"/>
+  <rect x="91" y="74" width="6" height="12" rx="1" fill="#fff" stroke="#c0392b"/>
+  <circle cx="94" cy="79" r="2" fill="#d9372b"/>
+  <ellipse cx="60" cy="64" rx="31" ry="33" fill="#fde2d2"/>
+  <ellipse cx="47" cy="71" rx="6" ry="7.5" fill="#a33a2e"/>
+  <ellipse cx="73" cy="71" rx="6" ry="7.5" fill="#a33a2e"/>
+  <ellipse cx="47" cy="72.5" rx="3" ry="4" fill="#5a1a14"/>
+  <ellipse cx="73" cy="72.5" rx="3" ry="4" fill="#5a1a14"/>
+  <circle cx="45" cy="68" r="2" fill="#fff"/>
+  <circle cx="71" cy="68" r="2" fill="#fff"/>
+  <path d="M40 66Q47 61 54 66M66 66Q73 61 80 66" fill="none" stroke="#2a1010" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M41 61Q47 58 53 61" fill="none" stroke="#4a1616" stroke-width="2" stroke-linecap="round"/>
+  <path d="M53 85Q60 91 67 85" fill="none" stroke="#7a2e2a" stroke-width="2" stroke-linecap="round"/>
+  <ellipse cx="39" cy="81" rx="5" ry="2.5" fill="#f59ab4" opacity=".45"/>
+  <ellipse cx="81" cy="81" rx="5" ry="2.5" fill="#f59ab4" opacity=".45"/>
+  <path d="M30 44L26 30L38 36L40 22L50 30L58 18L64 30L74 20L78 32L90 26L88 42Z" fill="url(#h)"/>
+  <path d="M27 64C25 34 44 25 60 26C78 25 97 34 93 64C91 56 88 52 85 50L80 54L76 44L70 52L64 40L58 54L52 42L46 56L41 46L37 56C33 56 29 60 27 64Z" fill="url(#h)"/>
+  <path d="M66 58C70 54 78 54 82 59C78 58 72 59 66 58Z" fill="#b5483b"/>
+</svg>

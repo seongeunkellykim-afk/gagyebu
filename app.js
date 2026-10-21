@@ -17,12 +17,7 @@ const CATEGORIES = {
 const form = document.getElementById('entryForm');
 const categorySelect = form.elements.category;
 
-const authForm = document.getElementById('authForm');
-const authStatus = document.getElementById('authStatus');
-
 let entries = [];
-// 처음 세션을 받기 전에는 undefined라서, 로그아웃 상태(null)도 한 번은 화면에 반영된다
-let userId;
 let loading = false;
 // 예전 버전에서 이 브라우저에 남겨 둔, 아직 옮기지 않은 데이터
 let pendingLocal = null;
@@ -99,6 +94,10 @@ function render() {
   const balanceEl = document.getElementById('sumBalance');
   balanceEl.textContent = won(income - expense);
   balanceEl.className = income - expense < 0 ? 'expense' : '';
+  // 배너의 네즈코 말풍선
+  document.getElementById('heroBubble').textContent = income - expense >= 0
+    ? `음! 이번 달 ${won(income - expense)} 남았어요`
+    : `음…! 이번 달 ${won(expense - income)} 더 썼어요`;
 
   // 분류별 지출
   const byCategory = {};
@@ -314,7 +313,7 @@ function renderChartTable(labels, series) {
 
 function setChartMode(mode) {
   chartMode = mode;
-  for (const tab of document.querySelectorAll('.tabs button')) {
+  for (const tab of document.querySelectorAll('#chartTabs button')) {
     tab.setAttribute('aria-selected', String(tab.dataset.mode === mode));
   }
   render();
@@ -380,7 +379,7 @@ document.getElementById('nextMonth').addEventListener('click', () => {
   render();
 });
 
-for (const tab of document.querySelectorAll('.tabs button')) {
+for (const tab of document.querySelectorAll('#chartTabs button')) {
   tab.addEventListener('click', () => setChartMode(tab.dataset.mode));
 }
 
@@ -424,7 +423,7 @@ document.getElementById('loadSample').addEventListener('click', e => {
 // 예전 버전에서 이 브라우저에 저장해 둔 내역과 날씨를 Supabase로 옮긴다
 document.getElementById('importLocal').addEventListener('click', e => {
   const local = pendingLocal;
-  if (!local || !confirm('이 브라우저에 저장된 내역과 날씨를 지금 계정으로 옮길까요?')) return;
+  if (!local || !confirm('이 브라우저에 저장된 내역과 날씨를 Supabase로 옮길까요?')) return;
   busy(e.currentTarget, '옮기는 중…', async () => {
     try {
       entries.push(...await insertEntries(local.entries.map(withoutId)));
@@ -499,65 +498,16 @@ function setupWeather() {
   });
 }
 
-// 로그인
-const AUTH_ERRORS = {
-  invalid_credentials: '이메일 또는 비밀번호가 맞지 않아요.',
-  email_not_confirmed: '메일함에서 인증 링크를 먼저 눌러 주세요.',
-  user_already_exists: '이미 가입된 이메일이에요. 로그인해 주세요.',
-  weak_password: '비밀번호를 6자 이상으로 더 길게 정해 주세요.',
-  over_email_send_rate_limit: '메일을 너무 자주 보냈어요. 잠시 뒤에 다시 해 주세요.',
-};
-
-function setAuthStatus(text, isError = false) {
-  authStatus.textContent = text;
-  authStatus.classList.toggle('error', isError);
-}
-
-authForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  const signup = e.submitter?.value === 'signup';
-  const email = authForm.elements.email.value.trim();
-  const password = authForm.elements.password.value;
-  const buttons = authForm.querySelectorAll('button');
-  buttons.forEach(b => (b.disabled = true));
-  setAuthStatus(signup ? '가입하는 중…' : '로그인하는 중…');
-  const { data, error } = signup
-    ? await db.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + location.pathname } })
-    : await db.auth.signInWithPassword({ email, password });
-  buttons.forEach(b => (b.disabled = false));
-  if (error) return setAuthStatus(AUTH_ERRORS[error.code] || errorText(error), true);
-  // 로그인되면 아래 onAuthStateChange에서 화면이 바뀐다
-  if (signup && !data.session) setAuthStatus('확인 메일을 보냈어요. 메일의 링크를 누른 뒤 여기서 로그인해 주세요.');
-});
-
-document.getElementById('signOut').addEventListener('click', async () => {
-  // 입력 중이던 날씨 메모는 로그아웃 전에 저장한다
-  if (weatherTimer) await saveWeather();
-  await db.auth.signOut();
-});
-
-async function onSession(session) {
-  const id = session?.user.id ?? null;
-  if (id === userId) return;
-  userId = id;
-  document.getElementById('authPanel').hidden = Boolean(id);
-  document.getElementById('appBody').hidden = !id;
-  document.querySelector('.month-nav').hidden = !id;
-  entries = [];
-  weatherDay = { sky: '', note: '' };
-  if (!id) {
-    authForm.reset();
-    setAuthStatus('같은 계정으로 로그인하면 어느 기기에서든 같은 가계부를 볼 수 있어요.');
+// 처음 열 때 Supabase에서 내역과 오늘의 날씨를 불러온다
+async function loadAll() {
+  if (!db) {
+    alert('Supabase 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.');
     return;
   }
-
-  document.getElementById('userEmail').textContent = session.user.email;
   loading = true;
   render();
-  showWeather();
   try {
     const [list, day] = await Promise.all([fetchEntries(), fetchWeather(todayStr())]);
-    if (userId !== id) return; // 불러오는 사이 로그아웃했다면 버린다
     entries = list;
     if (day) weatherDay = day;
     pendingLocal = localData();
@@ -575,12 +525,4 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderChar
 form.elements.date.value = todayStr();
 fillCategories();
 setupWeather();
-
-if (db) {
-  // 콜백 안에서 바로 Supabase를 다시 부르면 멈출 수 있어서 다음 차례로 미룬다
-  db.auth.onAuthStateChange((_event, session) => setTimeout(() => onSession(session), 0));
-} else {
-  document.getElementById('authPanel').hidden = false;
-  authForm.querySelectorAll('button').forEach(b => (b.disabled = true));
-  setAuthStatus('Supabase 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.', true);
-}
+loadAll();

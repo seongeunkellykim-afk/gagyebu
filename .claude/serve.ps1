@@ -1,6 +1,6 @@
 ﻿# 미리보기용 간단한 정적 파일 서버 (가계부 폴더를 http://localhost:8123 으로 연다)
 param([string]$Root = (Split-Path $PSScriptRoot), [int]$Port = 8123)
-$types = @{ '.html' = 'text/html; charset=utf-8'; '.css' = 'text/css; charset=utf-8'; '.js' = 'text/javascript; charset=utf-8' }
+$types = @{ '.html' = 'text/html; charset=utf-8'; '.css' = 'text/css; charset=utf-8'; '.js' = 'text/javascript; charset=utf-8'; '.svg' = 'image/svg+xml' }
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://localhost:$Port/")
 $listener.Start()

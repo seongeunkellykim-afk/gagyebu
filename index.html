@@ -29,109 +29,121 @@
       </div>
     </header>
 
-    <section class="panel" id="authPanel" hidden>
-      <h2>로그인</h2>
-      <form id="authForm">
-        <div class="grid">
-          <label>이메일 <input type="email" name="email" autocomplete="email" required></label>
-          <label>비밀번호 <input type="password" name="password" autocomplete="current-password" minlength="6" required></label>
-        </div>
-        <div class="auth-buttons">
-          <button type="submit" class="primary" value="signin">로그인</button>
-          <button type="submit" class="secondary" value="signup">회원가입</button>
-        </div>
-        <p class="hint" id="authStatus" role="status"></p>
-      </form>
+    <!-- 캐릭터 배너 (직접 그린 팬아트) -->
+    <section class="hero" aria-label="캐릭터">
+      <ul class="cast">
+        <li><img src="img/giyu.svg" alt=""><span>기유</span></li>
+        <li><img src="img/tanjiro.svg" alt=""><span>탄지로</span></li>
+        <li class="star">
+          <p class="bubble" id="heroBubble">음!</p>
+          <img src="img/nezuko.svg" alt=""><span>네즈코</span>
+        </li>
+        <li><img src="img/zenitsu.svg" alt=""><span>젠이츠</span></li>
+        <li><img src="img/inosuke.svg" alt=""><span>이노스케</span></li>
+        <li><img src="img/shinobu.svg" alt=""><span>시노부</span></li>
+      </ul>
     </section>
 
-    <div id="appBody" hidden>
-    <section class="panel weather">
-      <div class="panel-head">
-        <h2>오늘의 날씨</h2>
-        <span id="weatherDate" class="weather-date"></span>
+    <!-- 넓은 화면에서는 왼쪽(입력)·가운데(그래프·내역)·오른쪽(시장 현황) 3단 -->
+    <div class="layout">
+      <div class="col col-left">
+        <section class="panel weather">
+          <div class="panel-head">
+            <h2>오늘의 날씨</h2>
+            <span id="weatherDate" class="weather-date"></span>
+          </div>
+          <div class="weather-picks" id="weatherPicks" role="radiogroup" aria-label="날씨"></div>
+          <input type="text" id="weatherNote" maxlength="40" placeholder="예: 18°C, 바람 많이 붐" aria-label="날씨 메모">
+        </section>
+
+        <section class="summary">
+          <div class="card"><span>수입</span><strong id="sumIncome" class="income">0원</strong></div>
+          <div class="card"><span>지출</span><strong id="sumExpense" class="expense">0원</strong></div>
+          <div class="card"><span>잔액</span><strong id="sumBalance">0원</strong></div>
+        </section>
+
+        <section class="panel">
+          <h2>내역 추가</h2>
+          <form id="entryForm">
+            <div class="type-toggle">
+              <label><input type="radio" name="type" value="expense" checked><span>지출</span></label>
+              <label><input type="radio" name="type" value="income"><span>수입</span></label>
+            </div>
+            <div class="grid">
+              <label>날짜 <input type="date" name="date" required></label>
+              <label>분류 <select name="category"></select></label>
+              <label>금액 <input type="number" name="amount" min="1" step="1" inputmode="numeric" placeholder="0" required></label>
+              <label>메모 <input type="text" name="memo" maxlength="50" placeholder="예: 점심"></label>
+            </div>
+            <button type="submit" class="primary">추가</button>
+          </form>
+        </section>
+
+        <section class="panel">
+          <h2>분류별 지출</h2>
+          <ul id="categoryList" class="bars"></ul>
+        </section>
       </div>
-      <div class="weather-picks" id="weatherPicks" role="radiogroup" aria-label="날씨"></div>
-      <input type="text" id="weatherNote" maxlength="40" placeholder="예: 18°C, 바람 많이 붐" aria-label="날씨 메모">
-    </section>
 
-    <section class="summary">
-      <div class="card"><span>수입</span><strong id="sumIncome" class="income">0원</strong></div>
-      <div class="card"><span>지출</span><strong id="sumExpense" class="expense">0원</strong></div>
-      <div class="card"><span>잔액</span><strong id="sumBalance">0원</strong></div>
-    </section>
+      <div class="col col-center">
+        <section class="panel">
+          <div class="panel-head">
+            <h2 id="chartTitle">그래프</h2>
+            <div class="tabs" id="chartTabs" role="tablist" aria-label="그래프 기간">
+              <button type="button" role="tab" data-mode="day" aria-selected="true">일별</button>
+              <button type="button" role="tab" data-mode="month" aria-selected="false">월별</button>
+              <button type="button" role="tab" data-mode="year" aria-selected="false">연도별</button>
+            </div>
+          </div>
+          <div class="chart-box" id="chartBox"><canvas id="chart"></canvas></div>
+          <p class="hint" id="chartHint"></p>
+          <details class="table-view">
+            <summary>표로 보기</summary>
+            <table id="chartTable"></table>
+          </details>
+        </section>
 
-    <section class="panel">
-      <h2>내역 추가</h2>
-      <form id="entryForm">
-        <div class="type-toggle">
-          <label><input type="radio" name="type" value="expense" checked><span>지출</span></label>
-          <label><input type="radio" name="type" value="income"><span>수입</span></label>
-        </div>
-        <div class="grid">
-          <label>날짜 <input type="date" name="date" required></label>
-          <label>분류 <select name="category"></select></label>
-          <label>금액 <input type="number" name="amount" min="1" step="1" inputmode="numeric" placeholder="0" required></label>
-          <label>메모 <input type="text" name="memo" maxlength="50" placeholder="예: 점심"></label>
-        </div>
-        <button type="submit" class="primary">추가</button>
-      </form>
-    </section>
+        <section class="panel">
+          <h2>내역</h2>
+          <ul id="entryList" class="entries"></ul>
+        </section>
 
-    <section class="panel">
-      <div class="panel-head">
-        <h2>세계 증시</h2>
-        <button type="button" class="refresh" id="quoteRefresh">새로고침</button>
+        <section class="panel">
+          <h2>데이터 관리</h2>
+          <div class="tool-buttons">
+            <button type="button" id="loadSample" hidden>예시 데이터 넣기</button>
+            <button type="button" id="importLocal" hidden></button>
+            <button type="button" id="clearAll" class="danger">전체 삭제</button>
+          </div>
+          <p class="hint">데이터는 Supabase에 저장돼서 다른 기기에서 열어도 같은 가계부가 보여요.</p>
+        </section>
       </div>
-      <div id="marketGroups"></div>
-      <p class="hint quote-status">시세를 불러오는 중…</p>
-    </section>
 
-    <section class="panel">
-      <h2>주요 환율 <small>1단위당 원화</small></h2>
-      <ul class="quotes" id="fxList"></ul>
-      <h3>교차 환율</h3>
-      <ul class="quotes" id="crossList"></ul>
-      <p class="hint quote-status">시세를 불러오는 중…</p>
-      <p class="hint">TradingView 공개 시세 기준이에요. 일부 지수는 15~20분 늦게 반영되고, 장이 닫힌 시장은 마지막 가격을 보여줘요. 오르면 빨강, 내리면 파랑이에요.</p>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2 id="chartTitle">그래프</h2>
-        <div class="tabs" role="tablist" aria-label="그래프 기간">
-          <button type="button" role="tab" data-mode="day" aria-selected="true">일별</button>
-          <button type="button" role="tab" data-mode="month" aria-selected="false">월별</button>
-          <button type="button" role="tab" data-mode="year" aria-selected="false">연도별</button>
-        </div>
+      <div class="col col-right">
+        <section class="panel market">
+          <div class="panel-head">
+            <h2>시장 현황</h2>
+            <div class="tabs" id="marketTabs" role="tablist" aria-label="시장 현황">
+              <button type="button" role="tab" data-view="stocks" aria-selected="true">세계 증시</button>
+              <button type="button" role="tab" data-view="fx" aria-selected="false">환율</button>
+            </div>
+          </div>
+          <div id="stocksView">
+            <div id="marketGroups"></div>
+          </div>
+          <div id="fxView" hidden>
+            <h3>원화 기준 <small>1단위당 원</small></h3>
+            <ul class="quotes" id="fxList"></ul>
+            <h3>교차 환율</h3>
+            <ul class="quotes" id="crossList"></ul>
+          </div>
+          <div class="market-foot">
+            <p class="hint quote-status">시세를 불러오는 중…</p>
+            <button type="button" class="refresh" id="quoteRefresh">새로고침</button>
+          </div>
+          <p class="hint">TradingView 공개 시세 기준이에요. 일부 지수는 15~20분 늦게 반영되고, 장이 닫힌 시장은 마지막 가격을 보여줘요. 오르면 빨강, 내리면 파랑이에요.</p>
+        </section>
       </div>
-      <div class="chart-box" id="chartBox"><canvas id="chart"></canvas></div>
-      <p class="hint" id="chartHint"></p>
-      <details class="table-view">
-        <summary>표로 보기</summary>
-        <table id="chartTable"></table>
-      </details>
-    </section>
-
-    <section class="panel">
-      <h2>분류별 지출</h2>
-      <ul id="categoryList" class="bars"></ul>
-    </section>
-
-    <section class="panel">
-      <h2>내역</h2>
-      <ul id="entryList" class="entries"></ul>
-    </section>
-
-    <section class="panel">
-      <h2>데이터 관리</h2>
-      <div class="tool-buttons">
-        <button type="button" id="loadSample" hidden>예시 데이터 넣기</button>
-        <button type="button" id="importLocal" hidden></button>
-        <button type="button" id="clearAll" class="danger">전체 삭제</button>
-        <button type="button" id="signOut">로그아웃</button>
-      </div>
-      <p class="hint">데이터는 Supabase에 저장돼요. <strong id="userEmail"></strong> 계정으로 로그인하면 다른 기기에서도 볼 수 있어요.</p>
-    </section>
     </div>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>

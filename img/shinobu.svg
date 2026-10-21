@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150">
+  <defs>
+    <linearGradient id="h" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#17111d"/>
+      <stop offset=".55" stop-color="#241a2e"/>
+      <stop offset="1" stop-color="#7b4fb0"/>
+    </linearGradient>
+    <linearGradient id="w" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdf3f8"/>
+      <stop offset=".55" stop-color="#f6c7dc"/>
+      <stop offset="1" stop-color="#5fb8a6"/>
+    </linearGradient>
+  </defs>
+  <path d="M24 66C20 22 100 22 96 66L98 96C90 100 84 98 80 94L40 94C36 98 30 100 22 96Z" fill="url(#h)"/>
+  <path d="M14 150C16 122 36 110 60 110C84 110 104 122 106 150Z" fill="url(#w)"/>
+  <path d="M30 150L44 116M48 150L52 118M90 150L76 116M72 150L68 118" stroke="#2d4a52" stroke-opacity=".45" stroke-width="1.2"/>
+  <path d="M44 111L60 134L76 111C70 110 50 110 44 111Z" fill="#20212b"/>
+  <path d="M52 94h16v18H52z" fill="#f3c9b6"/>
+  <ellipse cx="29" cy="68" rx="4" ry="6" fill="#fde2d2"/>
+  <ellipse cx="91" cy="68" rx="4" ry="6" fill="#fde2d2"/>
+  <ellipse cx="60" cy="64" rx="31" ry="33" fill="#fde2d2"/>
+  <ellipse cx="47" cy="71" rx="6" ry="7.5" fill="#a77ad8"/>
+  <ellipse cx="73" cy="71" rx="6" ry="7.5" fill="#a77ad8"/>
+  <ellipse cx="47" cy="72.5" rx="3" ry="4" fill="#4b2a73"/>
+  <ellipse cx="73" cy="72.5" rx="3" ry="4" fill="#4b2a73"/>
+  <circle cx="45" cy="68" r="2" fill="#fff"/>
+  <circle cx="71" cy="68" r="2" fill="#fff"/>
+  <path d="M40 66Q47 61 54 66M66 66Q73 61 80 66" fill="none" stroke="#17111d" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M54 85Q60 89 66 85" fill="none" stroke="#a0504f" stroke-width="2" stroke-linecap="round"/>
+  <ellipse cx="39" cy="81" rx="5" ry="2.5" fill="#f59ab4" opacity=".55"/>
+  <ellipse cx="81" cy="81" rx="5" ry="2.5" fill="#f59ab4" opacity=".55"/>
+  <path d="M27 66C25 32 44 24 60 25C78 24 97 32 93 66C90 58 86 54 84 52L78 56L72 50L66 56L60 50L54 56L48 50L42 56L36 52C32 56 29 60 27 66Z" fill="url(#h)"/>
+  <path d="M36 40C24 28 18 40 30 44C20 48 26 56 36 44Z" fill="#b57be0"/>
+  <path d="M36 40C48 28 54 40 42 44C52 48 46 56 36 44Z" fill="#e28ac0"/>
+  <path d="M36 38V46" stroke="#4b2a73" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

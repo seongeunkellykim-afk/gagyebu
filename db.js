@@ -1,5 +1,6 @@
 // Supabase 연결과 데이터 읽기/쓰기
-// 공개(publishable) 키라 코드에 넣어도 되고, 테이블은 RLS로 로그인한 본인 데이터만 보이게 막혀 있다
+// 로그인 없이 쓰므로 이 공개(publishable) 키만 있으면 누구나 가계부를 읽고 쓸 수 있다
+// (코드를 공개 저장소에 올리면 데이터도 공개되는 셈이다)
 const SUPABASE_URL = 'https://hgucebmdpmwsftxbvhmp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_bUkrsD5IprcH-cblqswRoA_AWVqiFEw';
 const ENTRY_COLUMNS = 'id, type, date, category, amount, memo';
@@ -41,7 +42,7 @@ async function deleteEntry(id) {
 }
 
 async function deleteAllEntries() {
-  // delete에는 조건이 꼭 있어야 해서 모든 행에 맞는 조건을 준다 (RLS 때문에 본인 내역만 지워진다)
+  // delete에는 조건이 꼭 있어야 해서 모든 행에 맞는 조건을 준다
   const { error } = await db.from('entries').delete().gt('id', 0);
   if (error) throw error;
 }
@@ -53,7 +54,7 @@ async function fetchWeather(day) {
 }
 
 async function saveWeatherDays(days) {
-  const { error } = await db.from('weather').upsert(days, { onConflict: 'user_id,day' });
+  const { error } = await db.from('weather').upsert(days, { onConflict: 'day' });
   if (error) throw error;
 }
 

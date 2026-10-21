@@ -59,15 +59,16 @@ const ALL_QUOTES = [...MARKET_GROUPS.flatMap(g => g.items), ...FX_ITEMS, ...CROS
 const tiles = new Map();
 let quoteTimer = null;
 
+// 한 줄: 이름(지연 여부) | 가격 | 등락률. 등락 폭은 마우스를 올리면 보인다.
 function quoteTile(q) {
   const li = el('li', 'quote');
-  const head = el('div', 'q-head');
-  const mode = el('span', 'q-mode');
-  head.append(el('span', 'q-name', q.unit ? `${q.name} ${q.unit}` : q.name), mode);
+  const name = el('span', 'q-name', q.unit ? `${q.name} ${q.unit}` : q.name);
+  const mode = el('small', 'q-mode');
+  name.append(mode);
   const price = el('strong', 'q-price', '—');
   const change = el('span', 'q-change', '');
-  li.append(head, price, change);
-  tiles.set(q.s, { q, price, change, mode });
+  li.append(name, price, change);
+  tiles.set(q.s, { q, li, price, change, mode });
   return li;
 }
 
@@ -82,6 +83,15 @@ function setupMarkets() {
   }));
   document.getElementById('fxList').replaceChildren(...FX_ITEMS.map(quoteTile));
   document.getElementById('crossList').replaceChildren(...CROSS_ITEMS.map(quoteTile));
+
+  const tabs = document.querySelectorAll('#marketTabs button');
+  for (const tab of tabs) {
+    tab.addEventListener('click', () => {
+      for (const t of tabs) t.setAttribute('aria-selected', String(t === tab));
+      document.getElementById('stocksView').hidden = tab.dataset.view !== 'stocks';
+      document.getElementById('fxView').hidden = tab.dataset.view !== 'fx';
+    });
+  }
 
   document.getElementById('quoteRefresh').addEventListener('click', refreshQuotes);
   // 탭을 안 보고 있을 땐 쉬고, 다시 보면 바로 갱신한다
@@ -131,8 +141,9 @@ async function refreshQuotes() {
       tile.price.textContent = fmt(close * scale, digits);
       const dir = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
       const arrow = { up: '▲', down: '▼', flat: '–' }[dir];
-      tile.change.textContent = `${arrow} ${fmt(Math.abs(abs * scale), digits)} (${fmt(Math.abs(pct), 2)}%)`;
+      tile.change.textContent = `${arrow} ${fmt(Math.abs(pct), 2)}%`;
       tile.change.className = `q-change ${dir}`;
+      tile.li.title = `전일 대비 ${arrow} ${fmt(Math.abs(abs * scale), digits)}`;
       tile.mode.textContent = modeLabel(mode);
     }
     const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
