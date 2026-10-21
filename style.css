@@ -14,6 +14,8 @@
   /* 그래프 막대 색 (수입 대나무 초록, 지출 다홍) */
   --income: #4f8a3c;
   --expense: #e0485f;
+  /* 예산은 등나무꽃 보라 */
+  --budget: #8a5cc4;
   /* 글자용 색은 대비를 위해 한 단계 진하게 */
   --income-text: #3a6d2b;
   --expense-text: #c02f47;
@@ -40,6 +42,7 @@
     --bamboo-node: #5e8a3a;
     --income: #7fb069;
     --expense: #f0697c;
+    --budget: #b48ae6;
     --income-text: #a3d08d;
     --expense-text: #f58c9c;
     --up: #ff6f80;
@@ -55,11 +58,18 @@
 /* display를 지정한 요소도 hidden이면 숨긴다 */
 [hidden] { display: none !important; }
 
+/* 글씨체: 제목은 거친 붓글씨, 패널 제목·탭·버튼은 붓 명조, 본문은 옛 활자 느낌의 바탕체 */
+:root {
+  --font-brush: "East Sea Dokdo", "Song Myung", serif;
+  --font-title: "Song Myung", "Gowun Batang", serif;
+  --font-body: "Gowun Batang", "Malgun Gothic", serif;
+}
+
 body {
   margin: 0;
   background: var(--bg) var(--pattern);
   color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+  font-family: var(--font-body);
 }
 
 .app {
@@ -123,8 +133,9 @@ body {
   border-radius: 999px;
   background: rgb(0 0 0 / 0.35);
   color: #fff;
-  font-family: "Gowun Batang", serif;
-  font-size: clamp(0.65rem, 1.6vw, 0.8rem);
+  font-family: var(--font-brush);
+  font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+  line-height: 1.2;
   white-space: nowrap;
 }
 
@@ -139,8 +150,9 @@ body {
   border-radius: 12px;
   background: #fff;
   color: #2a1b20;
-  font-size: clamp(0.68rem, 1.6vw, 0.85rem);
-  font-weight: 600;
+  font-family: var(--font-brush);
+  font-size: clamp(1rem, 2.4vw, 1.3rem);
+  line-height: 1.1;
   white-space: nowrap;
   transform: translateX(-50%);
   box-shadow: 0 2px 6px rgb(0 0 0 / 0.2);
@@ -163,7 +175,8 @@ body {
   margin-bottom: 16px;
 }
 
-h1, h2 { font-family: "Gowun Batang", serif; font-weight: 700; }
+h1 { font-family: var(--font-brush); font-weight: 400; }
+h2, h3 { font-family: var(--font-title); font-weight: 400; }
 
 /* 제목은 검은 머리끝이 주황빛으로 물드는 느낌 */
 h1 {
@@ -171,7 +184,8 @@ h1 {
   align-items: center;
   gap: 8px;
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 2.6rem;
+  line-height: 1;
   background: linear-gradient(180deg, var(--text) 45%, var(--hair-tip));
   -webkit-background-clip: text;
   background-clip: text;
@@ -180,7 +194,7 @@ h1 {
 
 h1 .bamboo { width: 36px; height: 13px; flex-shrink: 0; }
 
-h2 { font-size: 1.05rem; margin: 0 0 12px; }
+h2 { font-size: 1.15rem; margin: 0 0 12px; }
 
 /* 패널 제목 앞의 리본 */
 .panel h2::before {
@@ -194,9 +208,9 @@ h2 { font-size: 1.05rem; margin: 0 0 12px; }
   vertical-align: -0.1em;
 }
 
-h2 small { margin-left: 4px; color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.75rem; font-weight: 400; }
+h2 small { margin-left: 4px; color: var(--muted); font-family: var(--font-body); font-size: 0.75rem; font-weight: 400; }
 
-h3 { margin: 14px 0 8px; color: var(--muted); font-size: 0.8rem; font-weight: 600; }
+h3 { margin: 14px 0 8px; color: var(--muted); font-size: 0.9rem; }
 
 .month-nav {
   display: flex;
@@ -373,6 +387,53 @@ h3 { margin: 14px 0 8px; color: var(--muted); font-size: 0.8rem; font-weight: 60
 }
 
 .bars li.empty { display: block; margin-bottom: 0; }
+
+/* 예산: 넘으면 빨강, 예산 없는 분류는 흐리게 */
+.bars li.over .bar i { background: var(--expense); }
+.bars li.no-budget .bar i { background: var(--accent-soft); }
+.bars .value small { color: var(--muted); font-size: 0.75rem; }
+
+.budget-total { margin-bottom: 14px; }
+.budget-total > .hint { margin: 0 0 4px; }
+
+.budget-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar.big { height: 12px; border-radius: 6px; }
+.bar.big i, .bars li:not(.over):not(.no-budget) .bar i { background: var(--budget); }
+.bar.big.over i { background: var(--expense); }
+
+.budget-form {
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px dashed var(--accent-soft);
+  border-radius: 8px;
+}
+
+.budget-form h3 { margin-top: 0; }
+
+.form-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.secondary {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
 
 .bar {
   height: 8px;
@@ -561,3 +622,6 @@ h3 small { margin-left: 4px; font-weight: 400; }
   .grid { grid-template-columns: 1fr; }
   .card strong { font-size: 0.95rem; }
 }
+
+/* 버튼·탭·카드 이름표는 붓 명조. 각 버튼의 font: inherit보다 뒤에, 더 구체적으로 둔다 */
+.app :is(button, .card > span, .type-toggle span) { font-family: var(--font-title); }

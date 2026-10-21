@@ -62,3 +62,15 @@ async function deleteWeather(day) {
   const { error } = await db.from('weather').delete().eq('day', day);
   if (error) throw error;
 }
+
+// 예산: { month: 'YYYY-MM', category, amount } 행. 행 수가 적어서 한 번에 다 읽는다.
+async function fetchBudgets() {
+  const { data, error } = await db.from('budgets').select('month, category, amount');
+  if (error) throw error;
+  return data;
+}
+
+async function saveBudgetRows(rows) {
+  const { error } = await db.from('budgets').upsert(rows, { onConflict: 'month,category' });
+  if (error) throw error;
+}

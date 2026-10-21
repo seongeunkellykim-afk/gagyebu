@@ -18,6 +18,8 @@ const form = document.getElementById('entryForm');
 const categorySelect = form.elements.category;
 
 let entries = [];
+// { 'YYYY-MM': { 식비: 500000, ... } }
+let budgets = {};
 let loading = false;
 // 예전 버전에서 이 브라우저에 남겨 둔, 아직 옮기지 않은 데이터
 let pendingLocal = null;
@@ -68,6 +70,15 @@ function el(tag, className, text) {
   return node;
 }
 
+// 그 달 예산이 없으면 가장 가까운 이전 달 예산을 이어서 쓴다
+function budgetFor(key) {
+  const month = Object.keys(budgets).filter(m => m <= key).sort().pop();
+  return month ? { month, items: budgets[month] } : null;
+}
+
+const budgetTotal = b => (b ? Object.values(b.items).reduce((sum, n) => sum + n, 0) : 0);
+const percent = (part, whole) => Math.round((part / whole) * 100);
+
 function fillCategories() {
   const type = form.elements.type.value;
   categorySelect.replaceChildren(...CATEGORIES[type].map(c => new Option(c, c)));
@@ -94,17 +105,26 @@ function render() {
   const balanceEl = document.getElementById('sumBalance');
   balanceEl.textContent = won(income - expense);
   balanceEl.className = income - expense < 0 ? 'expense' : '';
-  // 배너의 네즈코 말풍선
-  document.getElementById('heroBubble').textContent = income - expense >= 0
-    ? `음! 이번 달 ${won(income - expense)} 남았어요`
-    : `음…! 이번 달 ${won(expense - income)} 더 썼어요`;
+  const budget = budgetFor(key);
+  const budgetSum = budgetTotal(budget);
 
-  // 분류별 지출
+  // 배너의 네즈코 말풍선: 예산이 있으면 예산 사용률, 없으면 잔액
+  let bubble;
+  if (budgetSum && expense > budgetSum) bubble = `음…! 예산을 ${won(expense - budgetSum)} 넘었어요`;
+  else if (budgetSum) bubble = `음! 이번 달 예산 ${percent(expense, budgetSum)}% 썼어요`;
+  else if (income - expense >= 0) bubble = `음! 이번 달 ${won(income - expense)} 남았어요`;
+  else bubble = `음…! 이번 달 ${won(expense - income)} 더 썼어요`;
+  document.getElementById('heroBubble').textContent = bubble;
+
+  // 분류별 지출과 예산
   const byCategory = {};
   for (const e of list) {
     if (e.type === 'expense') byCategory[e.category] = (byCategory[e.category] || 0) + e.amount;
   }
-  const categories = Object.entries(byCategory).sort((a, b) => b[1] - a[1]);
+  renderBudgetTotal(expense, budget, key);
+  // 지출이 없어도 예산을 정한 분류는 보여준다
+  const names = new Set([...Object.keys(byCategory), ...Object.keys(budget?.items || {}).filter(c => budget.items[c] > 0)]);
+  const categories = [...names].map(name => [name, byCategory[name] || 0]).sort((a, b) => b[1] - a[1]);
   const max = categories.length ? categories[0][1] : 0;
   const categoryList = document.getElementById('categoryList');
   categoryList.replaceChildren();
@@ -112,12 +132,23 @@ function render() {
     categoryList.append(el('li', 'empty', '이번 달 지출이 없습니다.'));
   }
   for (const [name, total] of categories) {
+    const limit = budget?.items[name] || 0;
     const li = el('li');
     const bar = el('div', 'bar');
     const fill = el('i');
-    fill.style.width = `${(total / max) * 100}%`;
+    if (limit) {
+      // 예산이 있으면 예산 대비 사용률, 넘으면 빨갛게
+      fill.style.width = `${Math.min(total / limit, 1) * 100}%`;
+      if (total > limit) li.className = 'over';
+      li.title = `예산의 ${percent(total, limit)}%`;
+    } else {
+      fill.style.width = `${max ? (total / max) * 100 : 0}%`;
+      li.className = 'no-budget';
+    }
     bar.append(fill);
-    li.append(el('span', '', name), bar, el('span', 'value', won(total)));
+    const value = el('span', 'value', won(total));
+    if (limit) value.append(el('small', '', ` / ${won(limit)}`));
+    li.append(el('span', '', name), bar, value);
     categoryList.append(li);
   }
 
@@ -151,9 +182,58 @@ function render() {
   renderTools();
 }
 
-// 데이터 관리: 비어 있을 때만 예시 데이터 버튼을, 옮길 게 있을 때만 가져오기 버튼을 보여준다
+// 분류별 패널 맨 위의 이번 달 예산 합계
+function renderBudgetTotal(expense, budget, key) {
+  const box = document.getElementById('budgetTotal');
+  const total = budgetTotal(budget);
+  if (!total) {
+    box.replaceChildren(el('p', 'hint', '아직 예산이 없어요. 「예산 설정」을 눌러 이번 달 예산을 정해 보세요.'));
+    return;
+  }
+  const left = total - expense;
+  const head = el('div', 'budget-head');
+  head.append(
+    el('span', '', `예산 ${won(total)} 중 ${percent(expense, total)}% 사용`),
+    el('strong', left < 0 ? 'expense' : 'income', left < 0 ? `${won(-left)} 초과` : `${won(left)} 남음`),
+  );
+  const bar = el('div', `bar big${left < 0 ? ' over' : ''}`);
+  const fill = el('i');
+  fill.style.width = `${Math.min(expense / total, 1) * 100}%`;
+  bar.append(fill);
+  box.replaceChildren(head, bar);
+  if (budget.month !== key) {
+    const [, m] = budget.month.split('-');
+    box.append(el('p', 'hint', `${budget.month.slice(0, 4)}년 ${Number(m)}월 예산을 이어서 쓰고 있어요.`));
+  }
+}
+
+// 예산 설정 폼: 지출 분류마다 금액 칸을 만들고 지금 적용 중인 예산으로 채운다
+const budgetForm = document.getElementById('budgetForm');
+
+function openBudgetForm() {
+  const items = budgetFor(monthKey(current))?.items || {};
+  document.getElementById('budgetFields').replaceChildren(...CATEGORIES.expense.map(c => {
+    const label = el('label', '', c);
+    const input = el('input');
+    Object.assign(input, { type: 'number', name: c, min: 0, step: 1000, inputMode: 'numeric', placeholder: '0' });
+    if (items[c]) input.value = items[c];
+    label.append(input);
+    return label;
+  }));
+  document.getElementById('budgetFormTitle').textContent =
+    `${current.getFullYear()}년 ${current.getMonth() + 1}월 예산`;
+  budgetForm.hidden = false;
+  document.getElementById('editBudget').hidden = true;
+}
+
+function closeBudgetForm() {
+  budgetForm.hidden = true;
+  document.getElementById('editBudget').hidden = false;
+}
+
+// 데이터 관리: 옮길 게 있을 때만 가져오기 버튼을 보여준다
 function renderTools() {
-  document.getElementById('loadSample').hidden = loading || entries.length > 0;
+  document.getElementById('loadSample').hidden = loading;
   const importBtn = document.getElementById('importLocal');
   importBtn.hidden = loading || !pendingLocal;
   if (pendingLocal) importBtn.textContent = `이 브라우저 내역 ${pendingLocal.entries.length}건 가져오기`;
@@ -180,6 +260,19 @@ function chartData() {
     };
   }
 
+  if (chartMode === 'budget') {
+    const key = monthKey(current);
+    const items = budgetFor(key)?.items || {};
+    const spent = CATEGORIES.expense.map(c =>
+      entries.reduce((sum, e) => (e.type === 'expense' && e.category === c && e.date.startsWith(key) ? sum + e.amount : sum), 0));
+    return {
+      title: `${y}년 ${m + 1}월 분류별 예산 대비 지출`,
+      labels: CATEGORIES.expense,
+      series: [{ type: 'budget', data: CATEGORIES.expense.map(c => items[c] || 0) }, { type: 'expense', data: spent }],
+      hint: Object.keys(items).length ? '보라 막대보다 빨간 막대가 높으면 예산을 넘은 분류예요.' : '이 달에 적용할 예산이 없어요. 「예산 설정」에서 정할 수 있어요.',
+    };
+  }
+
   if (chartMode === 'month') {
     const income = new Array(12).fill(0);
     const expense = new Array(12).fill(0);
@@ -188,11 +281,14 @@ function chartData() {
       const i = Number(e.date.slice(5, 7)) - 1;
       (e.type === 'income' ? income : expense)[i] += e.amount;
     }
+    const budgetLine = Array.from({ length: 12 }, (_, i) => budgetTotal(budgetFor(`${y}-${String(i + 1).padStart(2, '0')}`)));
+    const series = [{ type: 'income', data: income }, { type: 'expense', data: expense }];
+    if (budgetLine.some(Boolean)) series.push({ type: 'budget', data: budgetLine, line: true });
     return {
       title: `${y}년 월별 수입·지출`,
       labels: Array.from({ length: 12 }, (_, i) => `${i + 1}월`),
-      series: [{ type: 'income', data: income }, { type: 'expense', data: expense }],
-      hint: '막대를 누르면 그 달의 일별 그래프로 이동합니다.',
+      series,
+      hint: '점선은 그 달 지출 예산이에요. 막대를 누르면 그 달의 일별 그래프로 이동합니다.',
       drill: i => {
         current = new Date(y, i, 1);
         setChartMode('day');
@@ -222,7 +318,12 @@ function chartData() {
   };
 }
 
-const seriesLabel = type => (type === 'income' ? '수입' : '지출');
+const SERIES = {
+  income: { label: '수입', color: '--income' },
+  expense: { label: '지출', color: '--expense' },
+  budget: { label: '예산', color: '--budget' },
+};
+const seriesLabel = type => SERIES[type].label;
 
 function renderChart() {
   const { title, labels, series, hint, drill } = chartData();
@@ -241,23 +342,36 @@ function renderChart() {
   const color = name => css.getPropertyValue(name).trim();
 
   // 막대가 굵기 상한(24px)에 걸려도 수입·지출 막대가 2px 간격으로 붙어 있도록 묶음 폭을 맞춘다
+  const bars = series.filter(s => !s.line).length;
   const slotWidth = box.clientWidth / labels.length;
-  const categoryPercentage = Math.min(0.8, (series.length * 26) / slotWidth);
+  const categoryPercentage = Math.min(0.8, (bars * 26) / slotWidth);
 
   if (chart) chart.destroy();
   chart = new Chart(document.getElementById('chart'), {
     type: 'bar',
     data: {
       labels,
-      datasets: series.map(s => ({
+      // 선(예산)은 막대 위에 그려지도록 order를 낮춘다
+      datasets: series.map(s => (s.line ? {
+        type: 'line',
         label: seriesLabel(s.type),
         data: s.data,
-        backgroundColor: color(s.type === 'income' ? '--income' : '--expense'),
+        borderColor: color(SERIES[s.type].color),
+        backgroundColor: color(SERIES[s.type].color),
+        borderWidth: 2,
+        borderDash: [6, 4],
+        pointRadius: 2.5,
+        order: 0,
+      } : {
+        label: seriesLabel(s.type),
+        data: s.data,
+        backgroundColor: color(SERIES[s.type].color),
         borderRadius: 4,
         borderSkipped: 'start',
         maxBarThickness: 24,
         barPercentage: 0.92,
         categoryPercentage,
+        order: 1,
       })),
     },
     options: {
@@ -371,11 +485,37 @@ form.addEventListener('submit', async e => {
 
 document.getElementById('prevMonth').addEventListener('click', () => {
   current = new Date(current.getFullYear(), current.getMonth() - 1, 1);
+  closeBudgetForm();
   render();
 });
 
 document.getElementById('nextMonth').addEventListener('click', () => {
   current = new Date(current.getFullYear(), current.getMonth() + 1, 1);
+  closeBudgetForm();
+  render();
+});
+
+document.getElementById('editBudget').addEventListener('click', openBudgetForm);
+document.getElementById('cancelBudget').addEventListener('click', closeBudgetForm);
+
+// 보고 있는 달의 예산으로 저장한다 (0원은 그 분류에 예산을 두지 않는다는 뜻)
+budgetForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const key = monthKey(current);
+  const items = {};
+  for (const c of CATEGORIES.expense) items[c] = Math.max(0, Math.round(Number(budgetForm.elements[c].value) || 0));
+  const submit = budgetForm.querySelector('button[type="submit"]');
+  submit.disabled = true;
+  try {
+    await saveBudgetRows(CATEGORIES.expense.map(category => ({ month: key, category, amount: items[category] })));
+  } catch (err) {
+    alert('예산을 저장하지 못했습니다.\n' + errorText(err));
+    return;
+  } finally {
+    submit.disabled = false;
+  }
+  budgets[key] = items;
+  closeBudgetForm();
   render();
 });
 
@@ -409,10 +549,16 @@ async function busy(btn, text, task) {
 }
 
 document.getElementById('loadSample').addEventListener('click', e => {
-  if (!confirm(`예시 데이터 ${SAMPLE_ENTRIES.length.toLocaleString('ko-KR')}건을 넣을까요?`)) return;
+  const count = SAMPLE_ENTRIES.length.toLocaleString('ko-KR');
+  const message = entries.length
+    ? `지금 내역 ${entries.length.toLocaleString('ko-KR')}건은 그대로 두고, 예시 내역 ${count}건과 예시 예산을 더할까요?\n(이미 넣었다면 내역이 두 번 들어가요)`
+    : `예시 내역 ${count}건과 예시 예산을 넣을까요?`;
+  if (!confirm(message)) return;
   busy(e.currentTarget, '넣는 중…', async () => {
     try {
-      entries.push(...await insertEntries(SAMPLE_ENTRIES.map(withoutId)));
+      entries.push(...await insertEntries(SAMPLE_ENTRIES));
+      await saveBudgetRows(SAMPLE_BUDGETS);
+      for (const { month, category, amount } of SAMPLE_BUDGETS) (budgets[month] ||= {})[category] = amount;
     } catch (err) {
       alert('예시 데이터를 넣지 못했습니다.\n' + errorText(err));
     }
@@ -507,8 +653,10 @@ async function loadAll() {
   loading = true;
   render();
   try {
-    const [list, day] = await Promise.all([fetchEntries(), fetchWeather(todayStr())]);
+    const [list, day, budgetRows] = await Promise.all([fetchEntries(), fetchWeather(todayStr()), fetchBudgets()]);
     entries = list;
+    budgets = {};
+    for (const { month, category, amount } of budgetRows) (budgets[month] ||= {})[category] = amount;
     if (day) weatherDay = day;
     pendingLocal = localData();
   } catch (err) {

@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#e0568a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=East+Sea+Dokdo&family=Song+Myung&family=Gowun+Batang:wght@400;700&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -80,7 +80,20 @@
         </section>
 
         <section class="panel">
-          <h2>분류별 지출</h2>
+          <div class="panel-head">
+            <h2>분류별 지출 · 예산</h2>
+            <button type="button" class="refresh" id="editBudget">예산 설정</button>
+          </div>
+          <form id="budgetForm" class="budget-form" hidden>
+            <h3 id="budgetFormTitle">예산</h3>
+            <div class="grid" id="budgetFields"></div>
+            <p class="hint">0원이나 빈칸은 그 분류에 예산을 두지 않는다는 뜻이에요. 다음 달부터는 새로 정하기 전까지 이 예산을 이어서 써요.</p>
+            <div class="form-buttons">
+              <button type="submit" class="primary">저장</button>
+              <button type="button" class="secondary" id="cancelBudget">취소</button>
+            </div>
+          </form>
+          <div id="budgetTotal" class="budget-total"></div>
           <ul id="categoryList" class="bars"></ul>
         </section>
       </div>
@@ -93,6 +106,7 @@
               <button type="button" role="tab" data-mode="day" aria-selected="true">일별</button>
               <button type="button" role="tab" data-mode="month" aria-selected="false">월별</button>
               <button type="button" role="tab" data-mode="year" aria-selected="false">연도별</button>
+              <button type="button" role="tab" data-mode="budget" aria-selected="false">예산 대비</button>
             </div>
           </div>
           <div class="chart-box" id="chartBox"><canvas id="chart"></canvas></div>
