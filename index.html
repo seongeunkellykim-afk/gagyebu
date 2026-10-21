@@ -29,6 +29,22 @@
       </div>
     </header>
 
+    <section class="panel" id="authPanel" hidden>
+      <h2>로그인</h2>
+      <form id="authForm">
+        <div class="grid">
+          <label>이메일 <input type="email" name="email" autocomplete="email" required></label>
+          <label>비밀번호 <input type="password" name="password" autocomplete="current-password" minlength="6" required></label>
+        </div>
+        <div class="auth-buttons">
+          <button type="submit" class="primary" value="signin">로그인</button>
+          <button type="submit" class="secondary" value="signup">회원가입</button>
+        </div>
+        <p class="hint" id="authStatus" role="status"></p>
+      </form>
+    </section>
+
+    <div id="appBody" hidden>
     <section class="panel weather">
       <div class="panel-head">
         <h2>오늘의 날씨</h2>
@@ -109,13 +125,19 @@
     <section class="panel">
       <h2>데이터 관리</h2>
       <div class="tool-buttons">
+        <button type="button" id="loadSample" hidden>예시 데이터 넣기</button>
+        <button type="button" id="importLocal" hidden></button>
         <button type="button" id="clearAll" class="danger">전체 삭제</button>
+        <button type="button" id="signOut">로그아웃</button>
       </div>
-      <p class="hint">데이터는 이 브라우저에만 저장됩니다.</p>
+      <p class="hint">데이터는 Supabase에 저장돼요. <strong id="userEmail"></strong> 계정으로 로그인하면 다른 기기에서도 볼 수 있어요.</p>
     </section>
+    </div>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script src="sample-data.js"></script>
+  <script src="db.js"></script>
   <script src="app.js"></script>
   <script src="market.js"></script>
 </body>
