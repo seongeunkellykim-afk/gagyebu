@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>가계부</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <h1>가계부</h1>
+      <div class="month-nav">
+        <button type="button" id="prevMonth" aria-label="이전 달">‹</button>
+        <span id="monthLabel"></span>
+        <button type="button" id="nextMonth" aria-label="다음 달">›</button>
+      </div>
+    </header>
+
+    <section class="summary">
+      <div class="card"><span>수입</span><strong id="sumIncome" class="income">0원</strong></div>
+      <div class="card"><span>지출</span><strong id="sumExpense" class="expense">0원</strong></div>
+      <div class="card"><span>잔액</span><strong id="sumBalance">0원</strong></div>
+    </section>
+
+    <section class="panel">
+      <h2>내역 추가</h2>
+      <form id="entryForm">
+        <div class="type-toggle">
+          <label><input type="radio" name="type" value="expense" checked><span>지출</span></label>
+          <label><input type="radio" name="type" value="income"><span>수입</span></label>
+        </div>
+        <div class="grid">
+          <label>날짜 <input type="date" name="date" required></label>
+          <label>분류 <select name="category"></select></label>
+          <label>금액 <input type="number" name="amount" min="1" step="1" inputmode="numeric" placeholder="0" required></label>
+          <label>메모 <input type="text" name="memo" maxlength="50" placeholder="예: 점심"></label>
+        </div>
+        <button type="submit" class="primary">추가</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2 id="chartTitle">그래프</h2>
+        <div class="tabs" role="tablist" aria-label="그래프 기간">
+          <button type="button" role="tab" data-mode="day" aria-selected="true">일별</button>
+          <button type="button" role="tab" data-mode="month" aria-selected="false">월별</button>
+          <button type="button" role="tab" data-mode="year" aria-selected="false">연도별</button>
+        </div>
+      </div>
+      <div class="chart-box" id="chartBox"><canvas id="chart"></canvas></div>
+      <p class="hint" id="chartHint"></p>
+      <details class="table-view">
+        <summary>표로 보기</summary>
+        <table id="chartTable"></table>
+      </details>
+    </section>
+
+    <section class="panel">
+      <h2>분류별 지출</h2>
+      <ul id="categoryList" class="bars"></ul>
+    </section>
+
+    <section class="panel">
+      <h2>내역</h2>
+      <ul id="entryList" class="entries"></ul>
+    </section>
+
+    <section class="panel">
+      <h2>데이터 관리</h2>
+      <div class="tool-buttons">
+        <button type="button" id="clearAll" class="danger">전체 삭제</button>
+      </div>
+      <p class="hint">데이터는 이 브라우저에만 저장됩니다.</p>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+  <script src="sample-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
