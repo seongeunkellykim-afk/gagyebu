@@ -1,5 +1,13 @@
 const STORAGE_KEY = 'gagyebu.entries';
 const SAMPLE_KEY = 'gagyebu.sampleVersion';
+const WEATHER_KEY = 'gagyebu.weather';
+const WEATHERS = [
+  { value: 'sunny', icon: '☀️', label: '맑음' },
+  { value: 'partly', icon: '⛅', label: '구름' },
+  { value: 'cloudy', icon: '☁️', label: '흐림' },
+  { value: 'rain', icon: '🌧️', label: '비' },
+  { value: 'snow', icon: '❄️', label: '눈' },
+];
 const CATEGORIES = {
   expense: ['식비', '교통', '주거', '통신', '쇼핑', '여행', '의료', '문화', '기타'],
   income: ['월급', '용돈', '부수입', '기타'],
@@ -363,9 +371,68 @@ document.getElementById('clearAll').addEventListener('click', () => {
   render();
 });
 
+// 오늘의 날씨: 날짜별로 { sky, note }를 저장한다
+function loadWeather() {
+  try {
+    return JSON.parse(localStorage.getItem(WEATHER_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveWeather(day) {
+  const all = loadWeather();
+  if (day.sky || day.note) all[todayStr()] = day;
+  else delete all[todayStr()];
+  try {
+    localStorage.setItem(WEATHER_KEY, JSON.stringify(all));
+  } catch {
+    alert('브라우저 저장소에 저장하지 못했습니다.');
+  }
+}
+
+function setupWeather() {
+  const today = new Date();
+  const weekday = today.toLocaleDateString('ko-KR', { weekday: 'short' });
+  document.getElementById('weatherDate').textContent =
+    `${today.getMonth() + 1}월 ${today.getDate()}일 (${weekday})`;
+
+  const day = loadWeather()[todayStr()] || { sky: '', note: '' };
+  const picks = document.getElementById('weatherPicks');
+  const note = document.getElementById('weatherNote');
+  note.value = day.note || '';
+
+  const buttons = WEATHERS.map(w => {
+    const btn = el('button', '', '');
+    btn.type = 'button';
+    btn.setAttribute('role', 'radio');
+    btn.append(el('span', 'icon', w.icon), el('span', '', w.label));
+    btn.addEventListener('click', () => {
+      // 같은 날씨를 다시 누르면 선택을 해제한다
+      day.sky = day.sky === w.value ? '' : w.value;
+      saveWeather(day);
+      update();
+    });
+    return btn;
+  });
+  picks.replaceChildren(...buttons);
+
+  function update() {
+    buttons.forEach((btn, i) => btn.setAttribute('aria-checked', String(WEATHERS[i].value === day.sky)));
+  }
+
+  note.addEventListener('input', () => {
+    day.note = note.value.trim();
+    saveWeather(day);
+  });
+
+  update();
+}
+
 // 시스템 다크 모드가 바뀌면 그래프 색도 다시 칠한다
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', renderChart);
 
 form.elements.date.value = todayStr();
 fillCategories();
+setupWeather();
 render();

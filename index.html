@@ -17,6 +17,15 @@
       </div>
     </header>
 
+    <section class="panel weather">
+      <div class="panel-head">
+        <h2>오늘의 날씨</h2>
+        <span id="weatherDate" class="weather-date"></span>
+      </div>
+      <div class="weather-picks" id="weatherPicks" role="radiogroup" aria-label="날씨"></div>
+      <input type="text" id="weatherNote" maxlength="40" placeholder="예: 18°C, 바람 많이 붐" aria-label="날씨 메모">
+    </section>
+
     <section class="summary">
       <div class="card"><span>수입</span><strong id="sumIncome" class="income">0원</strong></div>
       <div class="card"><span>지출</span><strong id="sumExpense" class="expense">0원</strong></div>
