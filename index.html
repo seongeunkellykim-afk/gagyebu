@@ -4,12 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>가계부</title>
+  <meta name="theme-color" content="#e0568a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="app">
     <header class="top">
-      <h1>가계부</h1>
+      <h1>
+        <svg class="bamboo" viewBox="0 0 40 14" aria-hidden="true">
+          <rect x="1" y="2" width="38" height="10" rx="5" fill="var(--bamboo)"/>
+          <rect x="13" y="2" width="2" height="10" fill="var(--bamboo-node)"/>
+          <rect x="25" y="2" width="2" height="10" fill="var(--bamboo-node)"/>
+          <rect x="4" y="4" width="30" height="2" rx="1" fill="#fff" opacity=".35"/>
+        </svg>
+        가계부
+      </h1>
       <div class="month-nav">
         <button type="button" id="prevMonth" aria-label="이전 달">‹</button>
         <span id="monthLabel"></span>
@@ -51,6 +63,24 @@
 
     <section class="panel">
       <div class="panel-head">
+        <h2>세계 증시</h2>
+        <button type="button" class="refresh" id="quoteRefresh">새로고침</button>
+      </div>
+      <div id="marketGroups"></div>
+      <p class="hint quote-status">시세를 불러오는 중…</p>
+    </section>
+
+    <section class="panel">
+      <h2>주요 환율 <small>1단위당 원화</small></h2>
+      <ul class="quotes" id="fxList"></ul>
+      <h3>교차 환율</h3>
+      <ul class="quotes" id="crossList"></ul>
+      <p class="hint quote-status">시세를 불러오는 중…</p>
+      <p class="hint">TradingView 공개 시세 기준이에요. 일부 지수는 15~20분 늦게 반영되고, 장이 닫힌 시장은 마지막 가격을 보여줘요. 오르면 빨강, 내리면 파랑이에요.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
         <h2 id="chartTitle">그래프</h2>
         <div class="tabs" role="tablist" aria-label="그래프 기간">
           <button type="button" role="tab" data-mode="day" aria-selected="true">일별</button>
@@ -87,5 +117,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
   <script src="sample-data.js"></script>
   <script src="app.js"></script>
+  <script src="market.js"></script>
 </body>
 </html>

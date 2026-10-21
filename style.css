@@ -1,36 +1,52 @@
+/* 테마: 분홍 기모노의 삼베잎(아사노하) 무늬, 대나무, 리본 분홍, 끝이 주황빛인 검은 머리 */
 :root {
   color-scheme: light;
-  --bg: #f5f6f8;
+  --bg: #fbf1f3;
   --surface: #ffffff;
-  --text: #1d2129;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --accent: #2f6fed;
-  /* 그래프 막대 색 (수입 파랑, 지출 빨강) */
-  --income: #2a78d6;
-  --expense: #e34948;
+  --text: #2a1b20;
+  --muted: #7d636b;
+  --border: #f0d6dd;
+  --accent: #d63d78;
+  --accent-soft: #f7c6d6;
+  --hair-tip: #e8743b;
+  --bamboo: #5f8f3a;
+  --bamboo-node: #456b28;
+  /* 그래프 막대 색 (수입 대나무 초록, 지출 다홍) */
+  --income: #4f8a3c;
+  --expense: #e0485f;
   /* 글자용 색은 대비를 위해 한 단계 진하게 */
-  --income-text: #1c5cab;
-  --expense-text: #c4302f;
-  --grid: #e1e0d9;
-  --axis: #c3c2b7;
+  --income-text: #3a6d2b;
+  --expense-text: #c02f47;
+  /* 시세: 오르면 빨강, 내리면 파랑 (국내 표기 관례) */
+  --up: #d32f45;
+  --down: #2b67b0;
+  --grid: #f0e0e4;
+  --axis: #dcc3ca;
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='69.282' viewBox='0 0 40 69.282'%3E%3Cpath fill='none' stroke='%23f2cdd8' stroke-width='1' d='M0 0H40M-20 34.641H60M0 69.282H40M0 0L40 69.282M40 0L0 69.282M0 0L-20 34.641L0 69.282M40 0L60 34.641L40 69.282M0 0L20 11.547L40 0M20 11.547V34.641M0 0V23.094L-20 34.641M0 23.094L20 34.641M40 0V23.094L20 34.641M40 23.094L60 34.641M-20 34.641L0 46.188L20 34.641M0 46.188V69.282M20 34.641L40 46.188L60 34.641M40 46.188V69.282M20 34.641V57.735M0 69.282L20 57.735L40 69.282'/%3E%3C/svg%3E");
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --bg: #111318;
-    --surface: #1b1e25;
-    --text: #e8eaed;
-    --muted: #9aa0a6;
-    --border: #2c313a;
-    --accent: #6b9bff;
-    --income: #3987e5;
-    --expense: #e66767;
-    --income-text: #86b6ef;
-    --expense-text: #f08a8a;
-    --grid: #2c2c2a;
-    --axis: #383835;
+    --bg: #170f15;
+    --surface: #23161f;
+    --text: #f6e9ed;
+    --muted: #b99da7;
+    --border: #3d2734;
+    --accent: #f07aa5;
+    --accent-soft: #5a2a40;
+    --hair-tip: #f0905a;
+    --bamboo: #7fae55;
+    --bamboo-node: #5e8a3a;
+    --income: #7fb069;
+    --expense: #f0697c;
+    --income-text: #a3d08d;
+    --expense-text: #f58c9c;
+    --up: #ff6f80;
+    --down: #6fa6ff;
+    --grid: #33232d;
+    --axis: #4a3240;
+    --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='69.282' viewBox='0 0 40 69.282'%3E%3Cpath fill='none' stroke='%232e1c27' stroke-width='1' d='M0 0H40M-20 34.641H60M0 69.282H40M0 0L40 69.282M40 0L0 69.282M0 0L-20 34.641L0 69.282M40 0L60 34.641L40 69.282M0 0L20 11.547L40 0M20 11.547V34.641M0 0V23.094L-20 34.641M0 23.094L20 34.641M40 0V23.094L20 34.641M40 23.094L60 34.641M-20 34.641L0 46.188L20 34.641M0 46.188V69.282M20 34.641L40 46.188L60 34.641M40 46.188V69.282M20 34.641V57.735M0 69.282L20 57.735L40 69.282'/%3E%3C/svg%3E");
   }
 }
 
@@ -38,7 +54,7 @@
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--bg) var(--pattern);
   color: var(--text);
   font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
 }
@@ -56,8 +72,40 @@ body {
   margin-bottom: 16px;
 }
 
-h1 { font-size: 1.5rem; margin: 0; }
-h2 { font-size: 1rem; margin: 0 0 12px; }
+h1, h2 { font-family: "Gowun Batang", serif; font-weight: 700; }
+
+/* 제목은 검은 머리끝이 주황빛으로 물드는 느낌 */
+h1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 1.6rem;
+  background: linear-gradient(180deg, var(--text) 45%, var(--hair-tip));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+h1 .bamboo { width: 36px; height: 13px; flex-shrink: 0; }
+
+h2 { font-size: 1.05rem; margin: 0 0 12px; }
+
+/* 패널 제목 앞의 리본 */
+.panel h2::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 0.95em;
+  margin-right: 8px;
+  border-radius: 2px;
+  background: var(--accent);
+  vertical-align: -0.1em;
+}
+
+h2 small { margin-left: 4px; color: var(--muted); font-family: system-ui, sans-serif; font-size: 0.75rem; font-weight: 400; }
+
+h3 { margin: 14px 0 8px; color: var(--muted); font-size: 0.8rem; font-weight: 600; }
 
 .month-nav {
   display: flex;
@@ -139,6 +187,7 @@ h2 { font-size: 1rem; margin: 0 0 12px; }
   padding: 12px;
   background: var(--surface);
   border: 1px solid var(--border);
+  border-top: 3px solid var(--accent-soft);
   border-radius: 12px;
 }
 
@@ -159,6 +208,7 @@ h2 { font-size: 1rem; margin: 0 0 12px; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
+  box-shadow: 0 2px 8px rgb(214 61 120 / 0.06);
 }
 
 /* 입력 폼 */
@@ -341,6 +391,50 @@ h2 { font-size: 1rem; margin: 0 0 12px; }
 .table-view th:first-child,
 .table-view td:first-child { text-align: left; }
 .table-view th { color: var(--muted); font-weight: 600; }
+
+/* 세계 증시·환율 */
+.q-group h3:first-child { margin-top: 0; }
+
+.quotes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quote {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.q-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; column-gap: 4px; }
+.q-name { min-width: 0; font-size: 0.8rem; color: var(--muted); }
+.q-mode { flex-shrink: 0; font-size: 0.65rem; color: var(--muted); }
+.q-price { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.q-change { font-size: 0.78rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.q-change.up { color: var(--up); }
+.q-change.down { color: var(--down); }
+
+.refresh {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.quote-status.error { color: var(--expense-text); }
 
 /* 데이터 관리 */
 .tool-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
